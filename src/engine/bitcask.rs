@@ -3,7 +3,7 @@ use std::{
     collections::HashMap,
     fs::{File, OpenOptions},
     io::{self, SeekFrom, Seek, Write, Read},
-    time::SystemTime,
+    time::{SystemTime, Instant},
 };
 use bincode::config;
 use crate::user::User;
@@ -57,6 +57,9 @@ pub fn open_file(path: &str) -> Result<File, io::Error>{
 }
 
 pub fn write_to_file(user: &User, engine: &mut Bitcask) -> Result<String, String> {
+    
+    let now = Instant::now();
+
     let config = config::standard(); 
 
     //serialize the user to bytes
@@ -78,7 +81,8 @@ pub fn write_to_file(user: &User, engine: &mut Bitcask) -> Result<String, String
     //insert the new data into the hashamp
     engine.insert_entry(data);
 
-    Ok("Added new entry".to_string())
+    let duration = now.elapsed();
+    Ok(format!("Added new entry ({:.2?})", duration).to_string())
 
 }
 
