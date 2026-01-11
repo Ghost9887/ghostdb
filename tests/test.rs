@@ -21,7 +21,7 @@ fn test_write_read() {
     assert!(write_to_file(&user, &mut engine).is_ok());
     
     let id = 0;
-    let new_user = read_from_file(0, &mut engine).unwrap();
+    let new_user = read_from_file(id, &mut engine).unwrap();
 
     assert_eq!(user, new_user);
 }
