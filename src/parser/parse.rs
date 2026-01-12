@@ -1,4 +1,4 @@
-use crate::parser::tokens::{Token, get_tokens};
+use crate::parser::tokens::{Token, get_tokens, create_actions};
 
 #[derive(PartialEq, Debug)]
 pub enum Action {
@@ -22,10 +22,14 @@ pub fn parse_repl_cmd(cmd: String) -> Result<Vec<Action>, String> {
             return Err(e.to_string());
         },
     };
-    
     println!("Tokens: {:?}", tokens);
-    
-    let actions: Vec<Action> = Vec::new();
+
+    let actions: Vec<Action> = match create_actions(tokens) {
+        Ok(a) => a,
+        Err(e) => {
+            return Err(e);
+        },
+    };
 
     Ok(actions)
 }

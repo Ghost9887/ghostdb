@@ -1,3 +1,5 @@
+use crate::parser::parse::Action;
+
 #[derive(Debug)]
 #[allow(dead_code)]
 pub enum Token {
@@ -19,7 +21,6 @@ pub enum Token {
 
 pub fn get_tokens(substrings: Vec<&str>) -> Result<Vec<Token>, String> {
     let mut tokens: Vec<Token> = Vec::new();
-
     match substrings.get(0) {
         Some(s) => match *s {
             "q" => {
@@ -32,7 +33,6 @@ pub fn get_tokens(substrings: Vec<&str>) -> Result<Vec<Token>, String> {
             return Ok(tokens);
         },
     }
-
     for sub in substrings {
         match sub {
             "create" => tokens.push(Token::Create),
@@ -50,6 +50,11 @@ pub fn get_tokens(substrings: Vec<&str>) -> Result<Vec<Token>, String> {
             _ => tokens.push(Token::Value(sub.to_string())),
         }
     }
-    
     Ok(tokens)
+}
+
+pub fn create_actions(_tokens: Vec<Token>) -> Result<Vec<Action>, String> {
+    let actions: Vec<Action> = Vec::new();
+
+    Ok(actions)
 }
