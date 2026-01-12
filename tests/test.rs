@@ -5,6 +5,7 @@ use ghostdb::engine::bitcask::{
     read_from_file,
 };
 use ghostdb::user::User;
+use ghostdb::parser::tokens::{Token, tokenize};
 
 #[test]
 fn test_open_file() {
@@ -24,4 +25,28 @@ fn test_write_read() {
     let new_user = read_from_file(id, &mut engine).unwrap();
 
     assert_eq!(user, new_user);
+}
+
+#[test]
+fn test_tokenization() {
+    let cmd: &str = "( ) 32, \"This is a test\" * ,3;";
+    let tokens: Vec<Token> = tokenize(cmd).expect("Tokenization should work");
+
+    let expected_tokens: Vec<Token> = vec![
+        Token::LParen, 
+        Token::Space, 
+        Token::RParen, 
+        Token::Space,
+        Token::Digit(32),
+        Token::Delimiter,
+        Token::Space,
+        Token::Identifier("This is a test".to_string()),
+        Token::Space,
+        Token::All,
+        Token::Space,
+        Token::Delimiter,
+        Token::Digit(3),
+        Token::EOS,
+    ];
+    assert_eq!(expected_tokens, tokens);
 }

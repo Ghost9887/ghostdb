@@ -38,7 +38,7 @@ fn repl(mut engine: Bitcask) -> Result<(), io::Error> {
         //get user command
         let mut raw_cmd: String = String::new();
         io::stdin().read_line(&mut raw_cmd)?;
-        let cmd = raw_cmd.trim_end().trim_start().to_lowercase();
+        let cmd = raw_cmd.trim_end().trim_start();
         
         let actions: Vec<Action> = match parse_repl_cmd(cmd.to_string()) {
             Ok(a) => a,

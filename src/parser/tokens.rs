@@ -1,6 +1,6 @@
 use crate::parser::parse::Action;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 #[allow(dead_code)]
 pub enum Token {
     Quit,
@@ -11,81 +11,102 @@ pub enum Token {
     Create,
     Table,
     Database,
-    Value(String),
     LParen,
     RParen,
     From,
     All,
     Delimiter,
+    Space,
+    EOS, //end of statement (;)
+    Identifier(String),
+    Digit(i64),
 }
 
-pub fn get_tokens(substrings: Vec<&str>) -> Result<Vec<Token>, String> {
+pub fn tokenize(cmd: &str) -> Result<Vec<Token>, String> {
     let mut tokens: Vec<Token> = Vec::new();
-    match substrings.get(0) {
-        Some(s) => match *s {
-            "q" => {
-                tokens.push(Token::Quit);
-                return Ok(tokens);
-            },
-            _ => {},
-        },
-        None => {
-            return Ok(tokens);
-        },
-    }
+    
+    let mut ip: usize = 0;
+    let chars: Vec<char> = cmd.chars().collect();
+    let mut identifier = String::new();
+    let mut digit = String::new();
 
-    for sub in substrings {
-        match sub {
-            "create" => tokens.push(Token::Create),
-            "select" => tokens.push(Token::Select),
-            "add" => tokens.push(Token::Add),
-            "update" => tokens.push(Token::Update),
-            "delete" => tokens.push(Token::Delete),
-            "from" => tokens.push(Token::From),
-            "database" => tokens.push(Token::Database),
-            "table" => tokens.push(Token::Table),
-            "*" => tokens.push(Token::All),
-            "(" => tokens.push(Token::RParen),
-            ")" => tokens.push(Token::LParen),
-            "," => tokens.push(Token::Delimiter),
-            _ => tokens.push(Token::Value(sub.to_string())),
+    while ip < chars.len() {
+        let c = match chars.get(ip) {
+            Some(c) => c,
+            None => break,
+        };
+
+        match c {
+            '(' => tokens.push(Token::LParen),
+            ')' => tokens.push(Token::RParen),
+            ' ' => tokens.push(Token::Space),
+            ',' => tokens.push(Token::Delimiter),
+            '*' => tokens.push(Token::All),
+            '"' => {
+                loop {
+                    ip += 1;
+                    let char = match chars.get(ip) {
+                        Some(c) => *c,
+                        None => {
+                            return Err("Missing string terminator".to_string());
+                        },
+                    };
+                    if char == ';' {
+                        return Err("Missing string terminator".to_string());
+                    }
+                    else if char == '"' {
+                        break;
+                    }
+                    identifier.push(char);
+                }
+                tokens.push(Token::Identifier(identifier.clone()));
+                identifier.clear();
+            },
+            ';' => {
+                tokens.push(Token::EOS);
+                return Ok(tokens);
+            }
+            _ => {
+                if c.is_numeric() {
+                    loop {
+                        let char = match chars.get(ip) {
+                            Some(c) => *c,
+                            None => break,
+                        };
+
+                        if char == ';' {
+                            tokens.push(Token::Digit(digit.parse::<i64>().unwrap()));
+                            tokens.push(Token::EOS);
+                            return Ok(tokens);
+                        }
+                        else if char.is_numeric() {
+                            digit.push(char);
+                        }
+                        else {
+                            //make it balance out so we don't miss out on one
+                            ip -=1;
+                            break;
+                        }
+                        ip += 1;
+                    }
+                    tokens.push(Token::Digit(digit.parse::<i64>().unwrap()));
+                    digit.clear();
+                }
+                else {
+                    return Err(format!("Inavlid syntax: {}", c).to_string());
+                }
+            },
         }
+
+        ip += 1;
     }
-    Ok(tokens)
+    
+    Err("Missing end of statement: ';'".to_string())
 }
 
 //checks if the tokens create a valid query
-pub fn create_actions(tokens: Vec<Token>) -> Result<Vec<Action>, String> {
-    let mut actions: Vec<Action> = Vec::new();
+pub fn create_actions(_tokens: Vec<Token>) -> Result<Vec<Action>, String> {
+    let actions: Vec<Action> = Vec::new();
     
-    //we get the first token as to know what the query is trying to do 
-    let first_token = match tokens.get(0) {
-        Some(t) => t,
-        None => {
-            return Err("No tokens!".to_string());
-        },
-    };
-    
-    match first_token {
-        Token::Quit =>  {
-            return Ok(vec![Action::Quit]);
-        },
-        Token::Create => {
-            
-        },
-        Token::Update => {
-
-        },
-        Token::Add => {
-
-        },
-        Token::Delete => {
-
-        },
-        _ => {
-            actions.push(Action::Invalid);
-        },
-    }
-
     Ok(actions)
 }

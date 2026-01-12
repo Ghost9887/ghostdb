@@ -1,4 +1,4 @@
-use crate::parser::tokens::{Token, get_tokens, create_actions};
+use crate::parser::tokens::{Token, tokenize, create_actions};
 
 #[derive(PartialEq, Debug)]
 pub enum Action {
@@ -13,15 +13,14 @@ pub enum Action {
 }
 
 pub fn parse_repl_cmd(cmd: String) -> Result<Vec<Action>, String> {
-    //split the command into substring
-    let substrings: Vec<&str> = cmd.split(' ').collect(); 
-
-    let tokens: Vec<Token> = match get_tokens(substrings) {
+    //tokenize the command
+    let tokens: Vec<Token> = match tokenize(&cmd) {
         Ok(t) => t,
         Err(e) => {
             return Err(e.to_string());
         },
     };
+
     println!("Tokens: {:?}", tokens);
 
     //check wether we have some tokens
