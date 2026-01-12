@@ -107,6 +107,14 @@ pub fn read_from_file(id: u64, engine: &mut Bitcask) -> Result<User, String>{
     Ok(user)
 }
 
-pub fn execute_actions(_actions: &Vec<Action>, _engine: &mut Bitcask) -> Result<(), String> {
-    Ok(())
+pub fn execute_actions(actions: &Vec<Action>, _engine: &mut Bitcask) -> Result<u8, String> {
+    for action in actions {
+        match action {
+            Action::Quit => {
+                return Ok(1);
+            },
+            _ => {},
+        }
+    }
+    Ok(2)
 }

@@ -33,6 +33,7 @@ pub fn get_tokens(substrings: Vec<&str>) -> Result<Vec<Token>, String> {
             return Ok(tokens);
         },
     }
+
     for sub in substrings {
         match sub {
             "create" => tokens.push(Token::Create),
@@ -53,8 +54,38 @@ pub fn get_tokens(substrings: Vec<&str>) -> Result<Vec<Token>, String> {
     Ok(tokens)
 }
 
-pub fn create_actions(_tokens: Vec<Token>) -> Result<Vec<Action>, String> {
-    let actions: Vec<Action> = Vec::new();
+//checks if the tokens create a valid query
+pub fn create_actions(tokens: Vec<Token>) -> Result<Vec<Action>, String> {
+    let mut actions: Vec<Action> = Vec::new();
+    
+    //we get the first token as to know what the query is trying to do 
+    let first_token = match tokens.get(0) {
+        Some(t) => t,
+        None => {
+            return Err("No tokens!".to_string());
+        },
+    };
+    
+    match first_token {
+        Token::Quit =>  {
+            return Ok(vec![Action::Quit]);
+        },
+        Token::Create => {
+            
+        },
+        Token::Update => {
+
+        },
+        Token::Add => {
+
+        },
+        Token::Delete => {
+
+        },
+        _ => {
+            actions.push(Action::Invalid);
+        },
+    }
 
     Ok(actions)
 }

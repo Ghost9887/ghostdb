@@ -48,12 +48,12 @@ fn repl(mut engine: Bitcask) -> Result<(), io::Error> {
             },
         };
 
-        match execute_actions(&actions, &mut engine) {
+        let _code = match execute_actions(&actions, &mut engine) {
             Ok(_) => {},
             Err(e) => {
                 eprintln!("{}", e);
             },
-        }
+        };
 
         println!("Actions: {:?}", actions);
     }
