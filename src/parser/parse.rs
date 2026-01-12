@@ -4,22 +4,36 @@ use crate::engine::bitcask::{
     Bitcask,
 };
 use crate::user::User;
+use crate::parser::tokens::{Token, get_tokens};
 use std::io::{self, Write};
 
 #[derive(PartialEq)]
 pub enum Action {
     Quit,
     Add,
-    Get,
+    Select,
+    Create,
     Invalid,
 }
 
-pub fn parse_repl_cmd(cmd: &str) -> Action {
-    match cmd {
-        "add" => Action::Add,
-        "get" => Action::Get,
-        "q" | "quit" => Action::Quit,
-        _ => Action::Invalid,
+pub fn parse_repl_cmd(cmd: String) -> Result<Action, String> {
+
+    //split the command into substrings
+    let substrings: Vec<&str> = cmd.split(' ').collect();  
+    let tokens: Vec<Token> = match get_tokens(substrings) {
+        Ok(t) => t,
+        Err(e) => {
+            return Err(e.to_string());
+        },
+    };
+    
+    println!("{:?}", tokens);
+    
+    match tokens[0] {
+        Token::Quit => Ok(Action::Quit),
+        Token::Add => Ok(Action::Add),
+        Token::Select => Ok(Action::Select),
+        Token::Create => Ok(Action::Create),
     }
 }
 
@@ -45,7 +59,7 @@ pub fn execute_action(action: Action, engine: &mut Bitcask) -> Result<User, Stri
                 },
             }
         },
-        Action::Get => {
+        Action::Select => {
             let id = match get_user_id() {
                 Ok(id) => id,
                 Err(e) => {
@@ -62,7 +76,6 @@ pub fn execute_action(action: Action, engine: &mut Bitcask) -> Result<User, Stri
 
             Ok(user)
         },
-        Action::Invalid => return Err("Invalid command".to_string()),
         _ => return Err("Invalid command".to_string()),
     }
 }

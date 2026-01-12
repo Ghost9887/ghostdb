@@ -48,7 +48,7 @@ impl Bitcask {
 }
 
 pub fn open_file(path: &str) -> Result<File, io::Error>{
-    let file = OpenOptions::new()
+    let file: File = OpenOptions::new()
         .read(true)
         .write(true) 
         .open(path)?;

@@ -1,19 +1,20 @@
 use std::{
     process,
     io::{self, Write},
+    fs::File,
 };
 use ghostdb::engine::bitcask::{
     Bitcask, open_file, 
 };
-use ghostdb::repl::actions::{
+use ghostdb::parser::parse::{
     Action,
     parse_repl_cmd,
     execute_action,
 };
 
 fn main() -> Result<(), io::Error> {
-    let path = "data/data.log";
-    let file = match open_file(path){
+    let path: &str = "data/data.log";
+    let file: File = match open_file(path){
         Ok(f) => f,
         Err(e) => {
             eprintln!("Failed to open file: {e}");
@@ -21,7 +22,7 @@ fn main() -> Result<(), io::Error> {
         },
     };
 
-    let engine = Bitcask::new(file);     
+    let engine: Bitcask = Bitcask::new(file);     
 
     repl(engine)?;
 
@@ -37,10 +38,18 @@ fn repl(mut engine: Bitcask) -> Result<(), io::Error> {
         io::stdout().flush()?;
         
         //get user command
-        let mut cmd = String::new();
-        io::stdin().read_line(&mut cmd)?;
+        let mut raw_cmd: String = String::new();
+        io::stdin().read_line(&mut raw_cmd)?;
+        let cmd = raw_cmd.trim_end().trim_start();
+        
+        let action: Action = match parse_repl_cmd(cmd.to_string()) {
+            Ok(a) => a,
+            Err(e) => {
+                eprintln!("{}", e);
+                continue;
+            },
+        };
 
-        let action: Action = parse_repl_cmd(cmd.trim());
         if action == Action::Quit {
             return Ok(());
         }
