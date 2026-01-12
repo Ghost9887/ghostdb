@@ -7,6 +7,7 @@ use std::{
 };
 use bincode::config;
 use crate::user::User;
+use crate::parser::parse::Action;
 
 pub struct Data {
     pub file_id: u64,
@@ -104,4 +105,8 @@ pub fn read_from_file(id: u64, engine: &mut Bitcask) -> Result<User, String>{
     let (user, _): (User, usize) = bincode::decode_from_slice(&buffer, config).unwrap();
 
     Ok(user)
+}
+
+pub fn execute_actions(_actions: &Vec<Action>, _engine: &mut Bitcask) -> Result<(), String> {
+    Ok(())
 }

@@ -4,12 +4,11 @@ use std::{
     fs::File,
 };
 use ghostdb::engine::bitcask::{
-    Bitcask, open_file, 
+    Bitcask, open_file, execute_actions, 
 };
 use ghostdb::parser::parse::{
     Action,
     parse_repl_cmd,
-    execute_action,
 };
 
 fn main() -> Result<(), io::Error> {
@@ -32,7 +31,6 @@ fn main() -> Result<(), io::Error> {
 fn repl(mut engine: Bitcask) -> Result<(), io::Error> {
     //clear the screen
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
-
     loop {
         print!("\u{1F47B} > ");
         io::stdout().flush()?;
@@ -40,9 +38,9 @@ fn repl(mut engine: Bitcask) -> Result<(), io::Error> {
         //get user command
         let mut raw_cmd: String = String::new();
         io::stdin().read_line(&mut raw_cmd)?;
-        let cmd = raw_cmd.trim_end().trim_start();
+        let cmd = raw_cmd.trim_end().trim_start().to_lowercase();
         
-        let action: Action = match parse_repl_cmd(cmd.to_string()) {
+        let actions: Vec<Action> = match parse_repl_cmd(cmd.to_string()) {
             Ok(a) => a,
             Err(e) => {
                 eprintln!("{}", e);
@@ -50,13 +48,13 @@ fn repl(mut engine: Bitcask) -> Result<(), io::Error> {
             },
         };
 
-        if action == Action::Quit {
-            return Ok(());
+        match execute_actions(&actions, &mut engine) {
+            Ok(_) => {},
+            Err(e) => {
+                eprintln!("{}", e);
+            },
         }
-        
-        match execute_action(action, &mut engine) {
-            Ok(user) => eprintln!("{:?}", user),
-            Err(e) => eprintln!("{e}"),
-        }
+
+        println!("Actions: {:?}", actions);
     }
 }
