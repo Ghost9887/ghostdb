@@ -3,7 +3,6 @@ use ghostdb::backend::engine::bitcask::{
     Bitcask,
     open_file,
 };
-use ghostdb::frontend::user::User;
 use ghostdb::frontend::codes::Code;
 use ghostdb::frontend::actions::{Action, execute_actions};
 use ghostdb::frontend::parser::parse::parse_repl_cmd;
@@ -62,8 +61,7 @@ fn test_tokenization() {
 
 #[test]
 fn test_create_bitcask_db() {
-    let file = open_file("data/data.log").unwrap(); 
-    let mut engine = Bitcask::new(file);
+    let mut engine = Bitcask::new();
     let cmd: &str = "create database \"Users\";"; 
  
     let actions: Vec<Action> = parse_repl_cmd(cmd.to_string()).unwrap();
