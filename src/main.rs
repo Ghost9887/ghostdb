@@ -1,27 +1,13 @@
 use std::{
-    process,
     io::{self, Write},
-    fs::File,
 };
-use ghostdb::engine::bitcask::{
-    Bitcask, open_file, execute_actions, 
-};
-use ghostdb::parser::parse::{
-    Action,
-    parse_repl_cmd,
-};
+use ghostdb::backend::engine::bitcask::Bitcask; 
+use ghostdb::frontend::parser::parse::parse_repl_cmd;
+use ghostdb::frontend::actions::{execute_actions, Action};
+use ghostdb::frontend::codes::Code;
 
 fn main() -> Result<(), io::Error> {
-    let path: &str = "data/data.log";
-    let file: File = match open_file(path){
-        Ok(f) => f,
-        Err(e) => {
-            eprintln!("Failed to open file: {e}");
-            process::exit(1);
-        },
-    };
-
-    let engine: Bitcask = Bitcask::new(file);     
+    let engine: Bitcask = Bitcask::new();     
 
     repl(engine)?;
 
@@ -48,13 +34,16 @@ fn repl(mut engine: Bitcask) -> Result<(), io::Error> {
             },
         };
 
-        let _code = match execute_actions(&actions, &mut engine) {
-            Ok(_) => {},
-            Err(e) => {
-                eprintln!("{}", e);
-            },
-        };
+        let code: Code = execute_actions(&actions, &mut engine); 
 
+        match code {
+            Code::Exit => break,
+            Code::Uknown => println!("Uknown Failure"),
+            Code::Success(suc) => println!("Success: {suc}"),
+            Code::Error(err) => eprintln!("Error: {err}"),
+        }
         println!("Actions: {:?}", actions);
     }
+
+    Ok(())
 }

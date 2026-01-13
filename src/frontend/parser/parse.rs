@@ -1,16 +1,6 @@
-use crate::parser::tokens::{Token, tokenize, create_actions};
-
-#[derive(PartialEq, Debug)]
-pub enum Action {
-    Quit,
-    Add,
-    Select,
-    CreateTable,
-    CreateDatabase,
-    Delete,
-    Update,
-    Invalid,
-}
+use crate::frontend::parser::tokens::{Token, tokenize};
+use crate::frontend::actions::Action;
+use crate::frontend::parser::ast::run_ast;
 
 pub fn parse_repl_cmd(cmd: String) -> Result<Vec<Action>, String> {
     //tokenize the command
@@ -28,7 +18,7 @@ pub fn parse_repl_cmd(cmd: String) -> Result<Vec<Action>, String> {
         return Ok(vec![Action::Invalid]);
     }
 
-    let actions: Vec<Action> = match create_actions(tokens) {
+    let actions: Vec<Action> = match run_ast(&tokens) {
         Ok(a) => a,
         Err(e) => {
             return Err(e);

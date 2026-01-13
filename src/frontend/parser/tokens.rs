@@ -1,5 +1,3 @@
-use crate::parser::parse::Action;
-
 #[derive(Debug, PartialEq)]
 #[allow(dead_code)]
 pub enum Token {
@@ -168,12 +166,4 @@ fn parse_keyword(chars: &Vec<char>, ip: &mut usize, tokens: &mut Vec<Token>) -> 
     }
 
     Ok(())
-}
-
-
-//checks if the tokens create a valid query
-pub fn create_actions(_tokens: Vec<Token>) -> Result<Vec<Action>, String> {
-    let actions: Vec<Action> = Vec::new();
-    
-    Ok(actions)
 }
