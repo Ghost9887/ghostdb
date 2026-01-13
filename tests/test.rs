@@ -29,10 +29,16 @@ fn test_write_read() {
 
 #[test]
 fn test_tokenization() {
-    let cmd: &str = "( ) 32, \"This is a test\" * ,3;";
-    let tokens: Vec<Token> = tokenize(cmd).expect("Tokenization should work");
+    let cmd1: &str = "( ) 32, \"This is a test\" * ,3;";
+    let tokens1: Vec<Token> = tokenize(cmd1).expect("Tokenization should work");
 
-    let expected_tokens: Vec<Token> = vec![
+    let cmd2: &str = "select * from \"Users\";";
+    let tokens2: Vec<Token> = tokenize(cmd2).expect("Tokenization should work");
+
+    let cmd3: &str = "create table \"Users\";";
+    let tokens3: Vec<Token> = tokenize(cmd3).expect("Tokenization should work");
+
+    let expected_tokens1: Vec<Token> = vec![
         Token::LParen, 
         Token::Space, 
         Token::RParen, 
@@ -48,5 +54,30 @@ fn test_tokenization() {
         Token::Digit(3),
         Token::EOS,
     ];
-    assert_eq!(expected_tokens, tokens);
+
+    assert_eq!(expected_tokens1, tokens1);
+
+    let expected_tokens2: Vec<Token> = vec![
+        Token::Select,
+        Token::Space,
+        Token::All,
+        Token::Space,
+        Token::From,
+        Token::Space,
+        Token::Identifier("Users".to_string()),
+        Token::EOS,
+    ];
+
+    assert_eq!(expected_tokens2, tokens2);
+
+    let expected_tokens3: Vec<Token> = vec![
+        Token::Create,
+        Token::Space,
+        Token::Table,
+        Token::Space,
+        Token::Identifier("Users".to_string()),
+        Token::EOS,
+    ];
+
+    assert_eq!(expected_tokens3, tokens3);
 }
