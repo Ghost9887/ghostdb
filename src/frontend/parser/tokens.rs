@@ -17,6 +17,9 @@ pub enum Token {
     EOS, //end of statement (;)
     Identifier(String),
     Digit(i64),
+    Varchar,
+    Int,
+    Boolean,
 }
 
 pub fn tokenize(cmd: &str) -> Result<Vec<Token>, String> {
@@ -149,6 +152,9 @@ fn parse_keyword(chars: &Vec<char>, ip: &mut usize, tokens: &mut Vec<Token>) -> 
                 "select" => tokens.push(Token::Select),
                 "from" => tokens.push(Token::From),
                 "database" => tokens.push(Token::Database),
+                "varchar" => tokens.push(Token::Varchar),
+                "int" => tokens.push(Token::Int),
+                "boolean" => tokens.push(Token::Boolean),
                 _ => {
                     return Err(format!("Invalid syntax: {keyword}").to_string());
                 },
