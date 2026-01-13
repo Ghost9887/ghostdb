@@ -1,4 +1,5 @@
 use std::mem::discriminant;
+use std::fs;
 use ghostdb::backend::engine::bitcask::{
     Bitcask,
     open_file,
@@ -72,4 +73,7 @@ fn test_create_bitcask_db() {
         discriminant(&code),
         discriminant(&Code::Success(String::new())),
     );
+
+    //delete the directory
+    fs::remove_dir_all("data/Test").unwrap();
 }
