@@ -16,7 +16,6 @@ pub enum Token {
     From,
     All,
     Delimiter,
-    Space,
     EOS, //end of statement (;)
     Identifier(String),
     Digit(i64),
@@ -37,7 +36,6 @@ pub fn tokenize(cmd: &str) -> Result<Vec<Token>, String> {
         match c {
             '(' => tokens.push(Token::LParen),
             ')' => tokens.push(Token::RParen),
-            ' ' => tokens.push(Token::Space),
             ',' => tokens.push(Token::Delimiter),
             '*' => tokens.push(Token::All),
             '"' => {
@@ -68,6 +66,10 @@ pub fn tokenize(cmd: &str) -> Result<Vec<Token>, String> {
                             return Err(e);
                         },
                     }
+                }
+                else if c.is_whitespace() {
+                    ip += 1;
+                    continue;
                 }
                 else {
                     return Err(format!("Inavlid syntax: {}", c).to_string());
