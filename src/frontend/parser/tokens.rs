@@ -144,6 +144,7 @@ fn parse_keyword(chars: &Vec<char>, ip: &mut usize, tokens: &mut Vec<Token>) -> 
 
         if !char.is_alphabetic() || char == ';'{
             match keyword.as_str() {
+                "q" | "quit" => tokens.push(Token::Quit),
                 "update" => tokens.push(Token::Update),
                 "create" => tokens.push(Token::Create),
                 "add" => tokens.push(Token::Add),

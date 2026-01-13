@@ -3,6 +3,7 @@ use crate::frontend::actions::Action;
 use crate::frontend::table::*;
 
 enum AstType{
+    Quit,
     Create,
 }
 
@@ -15,6 +16,9 @@ pub fn run_ast(tokens: &Vec<Token>) -> Result<Vec<Action>, String> {
     };
 
     match ast_type {
+        AstType::Quit => {
+            return Ok(vec![Action::Quit]);
+        },
         AstType::Create => {
             match generate_create_ast(tokens) {
                 Ok(actions) => {
@@ -81,6 +85,9 @@ fn identify_type(tokens: &Vec<Token>) -> Result<AstType, String> {
     match first_token {
         Token::Create => {
             return Ok(AstType::Create);
+        },
+        Token::Quit => {
+            return Ok(AstType::Quit);
         },
         _ => {},
     }
