@@ -62,7 +62,7 @@ fn test_tokenization() {
 #[test]
 fn test_create_bitcask_db() {
     let mut engine = Bitcask::new();
-    let cmd: &str = "create database \"Users\";"; 
+    let cmd: &str = "create database \"Test\";"; 
  
     let actions: Vec<Action> = parse_repl_cmd(cmd.to_string()).unwrap();
 

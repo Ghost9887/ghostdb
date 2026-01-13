@@ -30,18 +30,13 @@ pub fn run_ast(tokens: &Vec<Token>) -> Result<Vec<Action>, String> {
 
 fn generate_create_ast(tokens: &Vec<Token>) -> Result<Vec<Action>, String> {
     let mut actions: Vec<Action> = Vec::new();
-    //check the token length should be always the same
-    //create, table/database, "name", ;
-    if tokens.len() != 4 {
-        return Err("Invalid syntax: {too many args for create statement}".to_string());
-    }
 
-    let entry = 1;
-    let entry_name = 2;
+    let mut ip = 1;
 
-    match &tokens[entry] {
+    match &tokens[ip] {
         Token::Database => {
-            match &tokens[entry_name] {
+            ip +=1;
+            match &tokens[ip] {
                 Token::Identifier(name) => {
                     actions.push(Action::CreateDB(name.clone()));
                     return Ok(actions); 
@@ -52,7 +47,8 @@ fn generate_create_ast(tokens: &Vec<Token>) -> Result<Vec<Action>, String> {
             }
         },
         Token::Table => {
-            match &tokens[entry_name] {
+            ip += 1;
+            match &tokens[ip] {
                 Token::Identifier(name) => {
                     //create table
                     let mut _table: Table = Table {
