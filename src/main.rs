@@ -39,8 +39,8 @@ fn repl(mut engine: Bitcask) -> Result<(), io::Error> {
         match code {
             Code::Exit => break,
             Code::Uknown => println!("Uknown Failure"),
-            Code::Success(suc) => println!("Success: {suc}"),
             Code::Error(err) => eprintln!("Error: {err}"),
+            Code::Success(suc) => println!("Success: {suc}"),
         }
         println!("Actions: {:?}", actions);
     }
