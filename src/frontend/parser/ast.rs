@@ -1,96 +1,91 @@
 use crate::frontend::parser::tokens::Token;
-use crate::frontend::actions::Action;
-use crate::frontend::table::*;
+use crate::frontend::parser::parse::{Parser, Statement};
 
-enum AstType{
-    Quit,
-    Create,
+#[derive(Debug, PartialEq)]
+pub enum Identifier {
+    Name(String),
 }
 
-pub fn run_ast(tokens: &Vec<Token>) -> Result<Vec<Action>, String> {
-    let ast_type = match identify_type(tokens) {
-        Ok(t) => t,
-        Err(e) => {
-            return Err(e);
-        },
-    };
-
-    match ast_type {
-        AstType::Quit => {
-            return Ok(vec![Action::Quit]);
-        },
-        AstType::Create => {
-            match generate_create_ast(tokens) {
-                Ok(actions) => {
-                    return Ok(actions);
-                },
-                Err(e) => {
-                    return Err(e);
-                },
-            }
-        },
-    }
+#[derive(Debug, PartialEq)]
+pub enum CreateType {
+    Table,
+    Database,
 }
 
-fn generate_create_ast(tokens: &Vec<Token>) -> Result<Vec<Action>, String> {
-    let mut actions: Vec<Action> = Vec::new();
-
-    let mut ip = 1;
-
-    match &tokens[ip] {
-        Token::Database => {
-            ip +=1;
-            match &tokens[ip] {
-                Token::Identifier(name) => {
-                    actions.push(Action::CreateDB(name.clone()));
-                    return Ok(actions); 
-                },
-                _ => {
-                    return Err("Invalid syntax: {expected 'database_name'}".to_string());
-                },
-            }
-        },
-        Token::Table => {
-            ip += 1;
-            match &tokens[ip] {
-                Token::Identifier(name) => {
-                    //create table
-                    let mut _table: Table = Table {
-                        name: name.clone(),
-                        columns: Vec::new(),
-                        rows: Vec::new(),
-                    };
-                    return Ok(actions);
-                },
-                _ => {
-                    return Err("Invalid synatx: {expected 'table_name'}".to_string());
-                },
-            }
-        },
-        _ => {
-            return Err("Invalid syntax: {expected 'table' or 'database'}".to_string());
-        },
-    }
+#[derive(Debug, PartialEq)]
+pub struct CreateCore {
+    pub create_type: CreateType,
+    pub name: Identifier,
 }
 
-fn identify_type(tokens: &Vec<Token>) -> Result<AstType, String> {
-    //determines the type for now
-    let first_token = match tokens.get(0) {
-        Some(t) => t,
+#[derive(Debug, PartialEq)]
+pub struct CreateStmnt {
+    pub core: CreateCore,
+}
+
+pub fn run_ast(tokens: Vec<Token>) -> Result<Statement, String> {
+    let mut parser: Parser = Parser::new(tokens);
+    
+    match parser.peek() {
+        Some(t) => match t {
+            Token::Create => {
+                let create_stmnt = CreateStmnt { 
+                    core: parse_create_stmnt(&mut parser)?,
+                };
+                return Ok(Statement::Create(create_stmnt));
+            },
+            _ => {
+                return Err("Invalid syntax".to_string());
+            },
+        }
         None => {
-            return Err("Trying to identify a empty token list".to_string());
+            return Err("Invalid syntax".to_string());
         },
-    };
-
-    match first_token {
-        Token::Create => {
-            return Ok(AstType::Create);
-        },
-        Token::Quit => {
-            return Ok(AstType::Quit);
-        },
-        _ => {},
     }
+}
 
-    Err(format!("Invalid syntax: {:?}", first_token).to_string())
+fn parse_create_stmnt(parser: &mut Parser) -> Result<CreateCore, String> {
+    parser.advance();
+
+    match parser.peek() {
+        Some(t) => match t {
+            Token::Database => {
+                return Ok(CreateCore {
+                    create_type: CreateType::Database,
+                    name: parse_create_database(parser)?, 
+                });
+            },
+            _ => {
+                return Err("Invalid syntax: Expected ['table', 'database']".to_string());
+            },
+        },
+        None => {
+            return Err("Invalid syntax: Expected ['table', 'database']".to_string());
+        },
+    }
+}
+
+fn parse_create_database(parser: &mut Parser) -> Result<Identifier, String> {
+    parser.advance();
+    
+    match parser.peek() {
+        Some(t) => match t {
+            Token::Identifier(name) => {
+                match parser.expect_next(Token::EOS) {
+                    true => {
+                        return Ok(Identifier::Name(name.clone()));
+                    }
+                    false => {
+                        return Err("Invalid syntax: Expected ';'".to_string());
+                    }
+                }
+            },
+            _ => {
+                return Err("Invalid syntax: Expected 'database_name'".to_string());
+            }
+        },
+        None => {
+            return Err("Invalid syntax: Expected 'database_name'".to_string());
+        },
+    }
 }

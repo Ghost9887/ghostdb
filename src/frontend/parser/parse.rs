@@ -1,19 +1,49 @@
 use crate::frontend::parser::tokens::{Token, tokenize};
-use crate::frontend::actions::Action;
-use crate::frontend::parser::ast::run_ast;
+use crate::frontend::parser::ast::{run_ast, CreateStmnt};
 
-pub fn parse_repl_cmd(cmd: String) -> Result<Vec<Action>, String> {
-    //tokenize the command
-    let tokens: Vec<Token> = tokenize(&cmd)?;
-        
-    println!("Tokens: {:?}", tokens);
+#[derive(Debug, PartialEq)]
+pub enum Statement {
+    Create(CreateStmnt),
+}
 
-    //check wether we have some tokens
-    if tokens.is_empty() {
-        return Ok(vec![Action::Invalid]);
+#[derive(Debug)]
+pub struct Parser {
+    tokens: Vec<Token>,
+    position: usize,
+}
+impl Parser {
+    pub fn new(tokens: Vec<Token>) -> Self {
+        Parser {
+            tokens,
+            position: 0,
+        }
     }
+    pub fn peek(&self) -> Option<&Token> {
+        self.tokens.get(self.position)
+    }
+    pub fn peek_next(&self) -> Option<&Token> {
+        self.tokens.get(self.position + 1)
+    }
+    pub fn advance(&mut self) {
+        self.position += 1;
+    }
+    pub fn expect_next(&self, token: Token) -> bool {
+        let next_token = match self.peek_next() {
+            Some(t) => t,
+            None => {
+                return false;
+            }
+        };
 
-    let actions: Vec<Action> = run_ast(&tokens)?; 
+        *next_token == token
+    }
+}
 
-    Ok(actions)
+
+pub fn parse_cmd(cmd: &str) -> Result<Statement, String> {
+    let tokens: Vec<Token> = tokenize(cmd)?;
+        
+    let statement: Statement = run_ast(tokens)?; 
+    
+    Ok(statement)
 }

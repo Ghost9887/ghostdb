@@ -1,19 +1,11 @@
-use std::mem::discriminant;
-use std::fs;
-use ghostdb::backend::engine::bitcask::{
-    Bitcask,
-    open_file,
+use ghostdb::frontend::parser::parse::{parse_cmd, Statement};
+use ghostdb::frontend::parser::ast::{
+    CreateStmnt, 
+    CreateCore, 
+    Identifier, 
+    CreateType
 };
-use ghostdb::frontend::codes::Code;
-use ghostdb::frontend::actions::{Action, execute_actions};
-use ghostdb::frontend::parser::parse::parse_repl_cmd;
 use ghostdb::frontend::parser::tokens::{Token, tokenize};
-
-#[test]
-fn test_open_file() {
-    let path = "data/data.log";
-    assert!(open_file(path).is_ok());
-}   
 
 #[test]
 fn test_tokenization() {
@@ -61,19 +53,20 @@ fn test_tokenization() {
 }
 
 #[test]
-fn test_create_bitcask_db() {
-    let mut engine = Bitcask::new();
-    let cmd: &str = "create database \"Test\";"; 
- 
-    let actions: Vec<Action> = parse_repl_cmd(cmd.to_string()).unwrap();
+fn test_run_ast() {
 
-    let code: Code = execute_actions(&actions, &mut engine); 
-
-    assert_eq!(
-        discriminant(&code),
-        discriminant(&Code::Success(String::new())),
+    let expected_statement: Statement = Statement::Create(
+        CreateStmnt {
+            core: CreateCore {
+                create_type: CreateType::Database,
+                name: Identifier::Name(String::from("users")),
+            },
+        }
     );
+    
+    let query = "create database \"users\";";
+    let statement: Statement = parse_cmd(query).unwrap();
 
-    //delete the directory
-    fs::remove_dir_all("data/Test").unwrap();
+    assert_eq!(statement, expected_statement);
+
 }

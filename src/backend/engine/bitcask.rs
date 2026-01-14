@@ -1,6 +1,6 @@
 //BITCASK SEARCH ENGINE
 use std::{
-    fs::{self, File, OpenOptions},
+    fs::{File, OpenOptions},
     io,
 };
 
@@ -22,11 +22,12 @@ pub fn open_file(path: &str) -> Result<File, io::Error>{
     Ok(file)
 }
 
-//make a folder in data for the new database
+/*
 pub fn create_bitcask_database(name: String) -> Result<(), String> {
     fs::create_dir(format!("data/{}", name))
     .map_err(|err| format!("Failed to create database: {name}, {err}"))?;
 
     Ok(())
 }
+*/
 
