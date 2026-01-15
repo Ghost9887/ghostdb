@@ -1,7 +1,7 @@
 use std::{
     io::{self, Write},
 };
-use ghostdb::frontend::parser::parse::parse_cmd;
+use ghostdb::frontend::parser::parse::parse_query;
 use ghostdb::frontend::actions::execute_statement;
 
 fn main() -> Result<(), io::Error> {
@@ -27,7 +27,7 @@ fn repl() -> Result<(), io::Error> {
             return Ok(());
         }
         
-        let statement = match parse_cmd(cmd) {
+        let statement = match parse_query(cmd) {
             Ok(s) => s,
             Err(e) => {
                 eprintln!("{}", e);

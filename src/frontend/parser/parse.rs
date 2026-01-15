@@ -40,7 +40,7 @@ impl Parser {
 }
 
 
-pub fn parse_cmd(cmd: &str) -> Result<Statement, String> {
+pub fn parse_query(cmd: &str) -> Result<Statement, String> {
     let tokens: Vec<Token> = tokenize(cmd)?;
     
     //println!("{:?}", tokens);

@@ -1,5 +1,5 @@
 use std::fs;
-use ghostdb::frontend::parser::parse::{parse_cmd, Statement};
+use ghostdb::frontend::parser::parse::{parse_query, Statement};
 use ghostdb::frontend::table::*;
 use ghostdb::frontend::parser::tokens::{Token, tokenize};
 use ghostdb::frontend::parser::ast::{
@@ -73,7 +73,7 @@ fn test_create_database_ast() {
     );
 
     let query = "create database \"users\";";
-    let statement: Statement = parse_cmd(query).unwrap();
+    let statement: Statement = parse_query(query).unwrap();
 
     assert_eq!(statement, expected_statement);
 }
@@ -103,7 +103,7 @@ fn test_create_table_ast() {
     );
     
     let query = "create table \"users\" (\"name\" varchar, \"age\" int);";
-    let statement: Statement = parse_cmd(query).unwrap();
+    let statement: Statement = parse_query(query).unwrap();
 
     assert_eq!(statement, expected_statement);
 }
