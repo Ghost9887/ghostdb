@@ -55,7 +55,27 @@ fn test_tokenization() {
 }
 
 #[test]
-fn test_run_ast() {
+fn test_create_database_ast() {
+    let expected_statement: Statement = Statement::Create(
+        CreateStmnt {
+            core: CreateCore {
+                create_type: CreateType::Database,
+                name: Identifier::Name(String::from("users")),
+                columns: InsertColumns {
+                    columns: vec![],
+                },
+            }, 
+        },
+    );
+
+    let query = "create database \"users\";";
+    let statement: Statement = parse_cmd(query).unwrap();
+
+    assert_eq!(statement, expected_statement);
+}
+
+#[test]
+fn test_create_table_ast() {
 
     let expected_statement: Statement = Statement::Create(
         CreateStmnt {
@@ -82,5 +102,4 @@ fn test_run_ast() {
     let statement: Statement = parse_cmd(query).unwrap();
 
     assert_eq!(statement, expected_statement);
-
 }
