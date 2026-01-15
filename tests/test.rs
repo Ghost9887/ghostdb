@@ -1,9 +1,11 @@
 use ghostdb::frontend::parser::parse::{parse_cmd, Statement};
+use ghostdb::frontend::table::*;
 use ghostdb::frontend::parser::ast::{
     CreateStmnt, 
     CreateCore, 
     Identifier, 
-    CreateType
+    CreateType,
+    InsertColumns,
 };
 use ghostdb::frontend::parser::tokens::{Token, tokenize};
 
@@ -58,13 +60,25 @@ fn test_run_ast() {
     let expected_statement: Statement = Statement::Create(
         CreateStmnt {
             core: CreateCore {
-                create_type: CreateType::Database,
+                create_type: CreateType::Table,
                 name: Identifier::Name(String::from("users")),
+                columns: InsertColumns {
+                    columns: vec![
+                        Column {
+                            name: String::from("name"),
+                            col_type: ColumnType::Text,
+                        },
+                        Column {
+                            name: String::from("age"),
+                            col_type: ColumnType::Int,
+                        },
+                    ],
+                },
             },
         }
     );
     
-    let query = "create database \"users\";";
+    let query = "create table \"users\" (\"name\" varchar, \"age\" int);";
     let statement: Statement = parse_cmd(query).unwrap();
 
     assert_eq!(statement, expected_statement);

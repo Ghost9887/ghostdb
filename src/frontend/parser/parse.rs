@@ -42,8 +42,9 @@ impl Parser {
 
 pub fn parse_cmd(cmd: &str) -> Result<Statement, String> {
     let tokens: Vec<Token> = tokenize(cmd)?;
-        
-    let statement: Statement = run_ast(tokens)?; 
     
+    //println!("{:?}", tokens);
+    //
+    let statement: Statement = run_ast(tokens)?; 
     Ok(statement)
 }
