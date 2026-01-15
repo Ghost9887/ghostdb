@@ -1,5 +1,7 @@
+use std::fs;
 use ghostdb::frontend::parser::parse::{parse_cmd, Statement};
 use ghostdb::frontend::table::*;
+use ghostdb::frontend::parser::tokens::{Token, tokenize};
 use ghostdb::frontend::parser::ast::{
     CreateStmnt, 
     CreateCore, 
@@ -7,7 +9,9 @@ use ghostdb::frontend::parser::ast::{
     CreateType,
     InsertColumns,
 };
-use ghostdb::frontend::parser::tokens::{Token, tokenize};
+use ghostdb::backend::engine::bitcask::{
+    execute_create_database,
+};
 
 #[test]
 fn test_tokenization() {
@@ -102,4 +106,14 @@ fn test_create_table_ast() {
     let statement: Statement = parse_cmd(query).unwrap();
 
     assert_eq!(statement, expected_statement);
+}
+
+#[test]
+fn test_execute_create_database() {
+    let name = String::from("Test");
+
+    assert!(execute_create_database(name).is_ok());
+    
+    //delete the folder after
+    fs::remove_dir("data/Test").unwrap();
 }
