@@ -3,12 +3,14 @@ use crate::frontend::parser::ast::{
     run_ast, 
     CreateStmnt,
     DropStmnt,
+    UseStmnt,
 };
 
 #[derive(Debug, PartialEq)]
 pub enum Statement {
     Create(CreateStmnt),
     Drop(DropStmnt),
+    Use(UseStmnt),
 }
 
 #[derive(Debug)]
@@ -31,6 +33,9 @@ impl Parser {
     }
     pub fn advance(&mut self) {
         self.position += 1;
+    }
+    pub fn retreat(&mut self) {
+        self.position -= 1;
     }
     pub fn expect_next(&self, token: Token) -> bool {
         let next_token = match self.peek_next() {

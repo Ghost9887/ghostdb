@@ -7,6 +7,7 @@ pub enum Token {
     Select,
     Drop,
     Create,
+    Use,
     Table,
     Database,
     LParen,
@@ -20,6 +21,8 @@ pub enum Token {
     Varchar,
     Int,
     Boolean,
+    Bitcask,
+    BTree,
 }
 
 pub fn tokenize(cmd: &str) -> Result<Vec<Token>, String> {
@@ -156,6 +159,9 @@ fn parse_keyword(chars: &Vec<char>, ip: &mut usize, tokens: &mut Vec<Token>) -> 
                 "varchar" => tokens.push(Token::Varchar),
                 "int" => tokens.push(Token::Int),
                 "boolean" => tokens.push(Token::Boolean),
+                "bitcask" => tokens.push(Token::Bitcask),
+                "btree" => tokens.push(Token::BTree),
+                "use" => tokens.push(Token::Use),
                 _ => {
                     return Err(format!("Invalid syntax: {keyword}").to_string());
                 },

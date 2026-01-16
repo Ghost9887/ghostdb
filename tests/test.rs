@@ -12,7 +12,9 @@ use ghostdb::frontend::parser::ast::{
 use ghostdb::backend::engine::bitcask::{
     execute_create_database,
     execute_drop_database,
+    execute_change_active_database,
 };
+use ghostdb::backend::global::Global;
 
 #[test]
 fn test_tokenization() {
@@ -81,7 +83,7 @@ fn test_create_database_ast() {
 
 #[test]
 fn test_create_table_ast() {
-
+    
     let expected_statement: Statement = Statement::Create(
         CreateStmnt {
             core: CreateCore {
@@ -114,15 +116,28 @@ fn test_execute_create_database() {
     let name = String::from("Test1");
 
     assert!(execute_create_database(name).is_ok());
-
+    
     fs::remove_dir("data/Test1").unwrap();
 }
 
 #[test]
 fn test_execute_drop_database() {
     let name = String::from("Test2");
+    let mut global = Global::new();
 
     fs::create_dir("data/Test2").unwrap();
 
-    assert!(execute_drop_database(name).is_ok());
+    assert!(execute_drop_database(name, &mut global).is_ok());
+}
+
+#[test]
+fn test_execute_change_active_database() {
+    let mut global = Global::new();
+    let name1 = String::from("Test3");
+
+    fs::create_dir("data/Test3").unwrap();
+
+    assert!(execute_change_active_database(name1, &mut global).is_ok());
+
+    fs::remove_dir("data/Test3").unwrap();
 }

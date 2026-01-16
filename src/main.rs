@@ -3,15 +3,18 @@ use std::{
 };
 use ghostdb::frontend::parser::parse::parse_query;
 use ghostdb::frontend::actions::execute_statement;
+use ghostdb::backend::global::Global;
 
 fn main() -> Result<(), io::Error> {
     
-    repl()?;
+    let global = Global::new();
+
+    run(global)?;
 
     Ok(())
 }
 
-fn repl() -> Result<(), io::Error> {
+fn run(mut global: Global) -> Result<(), io::Error> {
     //clear the screen
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
     loop {
@@ -37,8 +40,11 @@ fn repl() -> Result<(), io::Error> {
 
         println!("{:?}", statement);
 
-        match execute_statement(statement) {
-            Ok(s) => println!("{}", s),
+        match execute_statement(statement, &mut global) {
+            Ok(s) => {
+                println!("{}", s);
+                println!("{:?}", global);
+            },
             Err(e) => eprintln!("{}", e),
         }
     }

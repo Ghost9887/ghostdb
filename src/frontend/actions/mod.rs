@@ -7,9 +7,11 @@ use std::time::Instant;
 use crate::backend::engine::bitcask::{
     execute_create_database,
     execute_drop_database,
+    execute_change_active_database,
 };
+use crate::backend::global::Global;
 
-pub fn execute_statement(statement: Statement) -> Result<String, String> {
+pub fn execute_statement(statement: Statement, global: &mut Global) -> Result<String, String> {
     let mut success_string = String::new();
     let now = Instant::now();
 
@@ -35,12 +37,18 @@ pub fn execute_statement(statement: Statement) -> Result<String, String> {
                     let name = match data.core.name {
                         Identifier::Name(n) => n,
                     };
-                    success_string.push_str(execute_drop_database(name)?.as_str());
+                    success_string.push_str(execute_drop_database(name, global)?.as_str());
                 },            
                 Type::Table => {
                     todo!()
                 },
             }
+        },
+        Statement::Use(data) => {
+            let name = match data.core.name {
+                Identifier::Name(n) => n,
+            };
+            success_string.push_str(execute_change_active_database(name, global)?.as_str());
         },
     }
 

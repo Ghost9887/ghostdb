@@ -41,6 +41,16 @@ pub struct DropStmnt {
     pub core: DropCore,
 }
 
+#[derive(Debug, PartialEq)]
+pub struct UseCore {
+    pub name: Identifier,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct UseStmnt {
+    pub core: UseCore,
+}
+
 pub fn run_ast(tokens: Vec<Token>) -> Result<Statement, String> {
     let mut parser: Parser = Parser::new(tokens);
     
@@ -58,12 +68,48 @@ pub fn run_ast(tokens: Vec<Token>) -> Result<Statement, String> {
                 };
                 return Ok(Statement::Drop(drop_stmnt));
             },
+            Token::Use => {
+                let use_stmnt = UseStmnt {
+                    core: parse_use_stmnt(&mut parser)?,
+                };
+                return Ok(Statement::Use(use_stmnt));
+            },
             _ => {
                 return Err("Invalid syntax".to_string());
             },
         }
         None => {
             return Err("Invalid syntax".to_string());
+        },
+    }
+}
+
+fn parse_use_stmnt(parser: &mut Parser) -> Result<UseCore, String> {
+    parser.advance();
+
+    match parser.peek() {
+        Some(t) => match t {
+            //TODO: Fix this no reason not to use the name already given
+            Token::Identifier(_) => {
+                parser.retreat();
+                let use_core = UseCore {
+                    name: parse_identifier(parser)?,
+                };
+                match parser.expect_next(Token::EOS) {
+                    true => {
+                        return Ok(use_core);
+                    },
+                    false => {
+                        return Err("Invalid syntax: Missing ';'".to_string());
+                    },
+                }
+            },
+            _ => {
+                return Err("Invalid syntax: Expected 'database_name'".to_string());
+            },
+        },
+        None => {
+            return Err("Invalid syntax: Expected 'database_name'".to_string());
         },
     }
 }
