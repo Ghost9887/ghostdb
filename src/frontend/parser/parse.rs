@@ -1,9 +1,14 @@
 use crate::frontend::parser::tokens::{Token, tokenize};
-use crate::frontend::parser::ast::{run_ast, CreateStmnt};
+use crate::frontend::parser::ast::{
+    run_ast, 
+    CreateStmnt,
+    DropStmnt,
+};
 
 #[derive(Debug, PartialEq)]
 pub enum Statement {
     Create(CreateStmnt),
+    Drop(DropStmnt),
 }
 
 #[derive(Debug)]

@@ -1,11 +1,12 @@
 use crate::frontend::parser::parse::Statement;
 use crate::frontend::parser::ast::{
-    CreateType,
+    Type,
     Identifier,
 };
 use std::time::Instant;
 use crate::backend::engine::bitcask::{
     execute_create_database,
+    execute_drop_database,
 };
 
 pub fn execute_statement(statement: Statement) -> Result<String, String> {
@@ -17,13 +18,26 @@ pub fn execute_statement(statement: Statement) -> Result<String, String> {
         Statement::Create(data) => {
             //execute statement
             match data.core.create_type {
-                CreateType::Database => {
+                Type::Database => {
                     let name = match data.core.name {
                         Identifier::Name(n) => n,
                     };
                     success_string.push_str(execute_create_database(name)?.as_str());
                 },
-                CreateType::Table => {
+                Type::Table => {
+                    todo!()
+                },
+            }
+        },
+        Statement::Drop(data) => {
+            match data.core.drop_type {
+                Type::Database => {
+                    let name = match data.core.name {
+                        Identifier::Name(n) => n,
+                    };
+                    success_string.push_str(execute_drop_database(name)?.as_str());
+                },            
+                Type::Table => {
                     todo!()
                 },
             }

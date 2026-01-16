@@ -8,7 +8,7 @@ pub enum Identifier {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum CreateType {
+pub enum Type {
     Table,
     Database,
 }
@@ -20,14 +20,25 @@ pub struct InsertColumns {
 
 #[derive(Debug, PartialEq)]
 pub struct CreateCore {
-    pub create_type: CreateType,
+    pub create_type: Type,
     pub name: Identifier,
     pub columns: InsertColumns,
 }
 
 #[derive(Debug, PartialEq)]
+pub struct DropCore {
+    pub drop_type: Type,
+    pub name: Identifier,
+}
+
+#[derive(Debug, PartialEq)]
 pub struct CreateStmnt {
     pub core: CreateCore,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct DropStmnt {
+    pub core: DropCore,
 }
 
 pub fn run_ast(tokens: Vec<Token>) -> Result<Statement, String> {
@@ -40,6 +51,12 @@ pub fn run_ast(tokens: Vec<Token>) -> Result<Statement, String> {
                     core: parse_create_stmnt(&mut parser)?,
                 };
                 return Ok(Statement::Create(create_stmnt));
+            },
+            Token::Drop => {
+                let drop_stmnt = DropStmnt {
+                    core: parse_drop_stmnt(&mut parser)?,
+                };
+                return Ok(Statement::Drop(drop_stmnt));
             },
             _ => {
                 return Err("Invalid syntax".to_string());
@@ -58,7 +75,7 @@ fn parse_create_stmnt(parser: &mut Parser) -> Result<CreateCore, String> {
         Some(t) => match t {
             Token::Database => {
                 let core = CreateCore {
-                    create_type: CreateType::Database,
+                    create_type: Type::Database,
                     name: parse_identifier(parser)?, 
                     columns: InsertColumns{ columns: Vec::new() },
                 };
@@ -79,7 +96,7 @@ fn parse_create_stmnt(parser: &mut Parser) -> Result<CreateCore, String> {
             },
             Token::Table => {
                 return Ok(CreateCore {
-                    create_type: CreateType::Table,
+                    create_type: Type::Table,
                     name: parse_identifier(parser)?,
                     columns: parse_insert_columns(parser)?,
                 });
@@ -92,6 +109,43 @@ fn parse_create_stmnt(parser: &mut Parser) -> Result<CreateCore, String> {
             return Err("Invalid syntax: Expected ['table', 'database']".to_string());
         },
     }
+}
+
+fn parse_drop_stmnt(parser: &mut Parser) -> Result<DropCore, String> {
+    parser.advance();
+
+    match parser.peek() {
+        Some(t) => match t {
+            Token::Table => {
+                todo!()
+            },
+            Token::Database => {
+                let core = DropCore {
+                    name: parse_identifier(parser)?,
+                    drop_type: Type::Database,
+                };
+                match parser.peek_next() {
+                    Some(t) => match t {
+                        Token::EOS => {
+                            return Ok(core);
+                        },
+                        _ => {
+                            return Err("Invalid syntax: Expected ';'".to_string());
+                        },
+                    },
+                    None => {
+                            return Err("Invalid syntax: Expected ';'".to_string());
+                    },
+                }
+            },
+            _ => {
+                return Err("Invalid syntax: Expected ['table', 'database']".to_string());
+            },
+        },
+        None => {
+            return Err("Invalid syntax: Expected ['table', 'database']".to_string());
+        },
+    }   
 }
 
 fn parse_insert_columns(parser: &mut Parser) -> Result<InsertColumns, String> {

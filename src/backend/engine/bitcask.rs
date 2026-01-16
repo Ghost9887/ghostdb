@@ -24,9 +24,16 @@ pub fn open_file(path: &str) -> Result<File, io::Error>{
 
 pub fn execute_create_database(name: String) -> Result<String, String> {
     fs::create_dir(format!("data/{}", name))
-    .map_err(|err| format!("Failed to create database: {name}, Error: {err}"))?;
+        .map_err(|err| format!("Failed to create database: {name}, Error: {err}"))?;
 
     Ok(format!("Successfully created database: {}", name))
+}
+
+pub fn execute_drop_database(name: String) -> Result<String, String> {
+    fs::remove_dir_all(format!("data/{}", name))
+        .map_err(|err| format!("Failed to drop database: {name}, Error: {err}"))?;
+
+    Ok(format!("Successfully droped database: {}", name))
 }
 
 /*

@@ -5,7 +5,7 @@ use ghostdb::frontend::parser::parse::parse_query;
 use ghostdb::frontend::actions::execute_statement;
 
 fn main() -> Result<(), io::Error> {
-
+    
     repl()?;
 
     Ok(())

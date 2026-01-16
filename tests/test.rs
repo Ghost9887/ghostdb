@@ -6,11 +6,12 @@ use ghostdb::frontend::parser::ast::{
     CreateStmnt, 
     CreateCore, 
     Identifier, 
-    CreateType,
+    Type,
     InsertColumns,
 };
 use ghostdb::backend::engine::bitcask::{
     execute_create_database,
+    execute_drop_database,
 };
 
 #[test]
@@ -63,7 +64,7 @@ fn test_create_database_ast() {
     let expected_statement: Statement = Statement::Create(
         CreateStmnt {
             core: CreateCore {
-                create_type: CreateType::Database,
+                create_type: Type::Database,
                 name: Identifier::Name(String::from("users")),
                 columns: InsertColumns {
                     columns: vec![],
@@ -84,7 +85,7 @@ fn test_create_table_ast() {
     let expected_statement: Statement = Statement::Create(
         CreateStmnt {
             core: CreateCore {
-                create_type: CreateType::Table,
+                create_type: Type::Table,
                 name: Identifier::Name(String::from("users")),
                 columns: InsertColumns {
                     columns: vec![
@@ -110,10 +111,18 @@ fn test_create_table_ast() {
 
 #[test]
 fn test_execute_create_database() {
-    let name = String::from("Test");
+    let name = String::from("Test1");
 
     assert!(execute_create_database(name).is_ok());
-    
-    //delete the folder after
-    fs::remove_dir("data/Test").unwrap();
+
+    fs::remove_dir("data/Test1").unwrap();
+}
+
+#[test]
+fn test_execute_drop_database() {
+    let name = String::from("Test2");
+
+    fs::create_dir("data/Test2").unwrap();
+
+    assert!(execute_drop_database(name).is_ok());
 }
