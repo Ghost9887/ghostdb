@@ -44,9 +44,7 @@ fn run(mut global: Global) -> Result<(), io::Error> {
                 continue;
             },
         };
-
         //println!("{:?}", statement);
-
         match execute_statement(statement, &mut global) {
             Ok(s) => {
                 println!("{}", s);

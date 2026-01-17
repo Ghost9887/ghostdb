@@ -24,6 +24,10 @@ pub fn open_file(path: &str) -> Result<File, io::Error>{
 }
 
 pub fn execute_create_database(name: String) -> Result<String, String> {
+    //check wether we actually have a name
+    if name.is_empty() {
+        return Err("Invalid operation, Error: No name given".to_string());
+    }
     fs::create_dir(format!("data/{}", name))
         .map_err(|err| format!("Failed to create database: {name}, Error: {err}"))?;
 
@@ -31,6 +35,10 @@ pub fn execute_create_database(name: String) -> Result<String, String> {
 }
 
 pub fn execute_drop_database(name: String, global: &mut Global) -> Result<String, String> {
+    //check wether we actually have a name
+    if name.is_empty() {
+        return Err("Invalid operation, Error: No name given".to_string());
+    }
     fs::remove_dir_all(format!("data/{}", name))
         .map_err(|err| format!("Failed to drop database: {name}, Error: {err}"))?;
 
@@ -44,6 +52,10 @@ pub fn execute_drop_database(name: String, global: &mut Global) -> Result<String
 }
 
 pub fn execute_change_active_database(name: String, global: &mut Global) -> Result<String, String> {
+    //check wether we actually have a name
+    if name.is_empty() {
+        return Err("Invalid operation, Error: No name given".to_string());
+    }
     //returns a Result<bool>
     let res = fs::exists(format!("data/{}", name)).unwrap();
     match res {
