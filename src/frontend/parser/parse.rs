@@ -54,7 +54,6 @@ pub fn parse_query(cmd: &str) -> Result<Statement, String> {
     let tokens: Vec<Token> = tokenize(cmd)?;
     
     //println!("{:?}", tokens);
-    //
     let statement: Statement = run_ast(tokens)?; 
     Ok(statement)
 }

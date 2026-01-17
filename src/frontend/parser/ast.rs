@@ -89,9 +89,7 @@ fn parse_use_stmnt(parser: &mut Parser) -> Result<UseCore, String> {
 
     match parser.peek() {
         Some(t) => match t {
-            //TODO: Fix this no reason not to use the name already given
-            Token::Identifier(_) => {
-                parser.retreat();
+            Token::Database => {
                 let use_core = UseCore {
                     name: parse_identifier(parser)?,
                 };
@@ -105,11 +103,11 @@ fn parse_use_stmnt(parser: &mut Parser) -> Result<UseCore, String> {
                 }
             },
             _ => {
-                return Err("Invalid syntax: Expected 'database_name'".to_string());
+                return Err("Invalid syntax: Expected 'database'".to_string());
             },
         },
         None => {
-            return Err("Invalid syntax: Expected 'database_name'".to_string());
+            return Err("Invalid syntax: Expected 'database'".to_string());
         },
     }
 }

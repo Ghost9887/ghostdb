@@ -35,8 +35,8 @@ pub fn execute_drop_database(name: String, global: &mut Global) -> Result<String
         .map_err(|err| format!("Failed to drop database: {name}, Error: {err}"))?;
 
     //change the database to undefined if its the current one
-    if global.get_current_database_name() == name {
-        global.change_database(String::new());
+    if global.get_current_database_name() == Some(name.as_str()) {
+        global.change_database(None);
         global.change_engine(EngineType::Undefined);
     }
     
@@ -54,7 +54,7 @@ pub fn execute_change_active_database(name: String, global: &mut Global) -> Resu
     }
 
     //make it so we can read the new database data and determine the engine as well
-    global.change_database(name.clone());
+    global.change_database(Some(name.clone()));
 
     Ok(format!("Successfully changed active database: {}", name))
 }

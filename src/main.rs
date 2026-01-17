@@ -18,7 +18,14 @@ fn run(mut global: Global) -> Result<(), io::Error> {
     //clear the screen
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
     loop {
-        print!("\u{1F47B} > ");
+        match global.get_current_database_name() {
+            Some(n) => {
+                print!("\u{1F47B} ({n})> ");
+            },
+            None => {
+                print!("\u{1F47B} > ");
+            },
+        }
         io::stdout().flush()?;
         
         //get user command
@@ -38,12 +45,12 @@ fn run(mut global: Global) -> Result<(), io::Error> {
             },
         };
 
-        println!("{:?}", statement);
+        //println!("{:?}", statement);
 
         match execute_statement(statement, &mut global) {
             Ok(s) => {
                 println!("{}", s);
-                println!("{:?}", global);
+                //println!("{:?}", global);
             },
             Err(e) => eprintln!("{}", e),
         }
